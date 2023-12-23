@@ -62,3 +62,5 @@ def extract_paper_region(ImagePath):
     
     show_images([img_RGB,WarpedColoredImage],['Original','RGB'])
     return (WarpedColoredImage,WarpedGrayImage)
+
+extract_paper_region('test.jpg')
