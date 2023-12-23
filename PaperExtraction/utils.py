@@ -39,18 +39,4 @@ def showHist(img):
     
     bar(imgHist[1].astype(np.uint8), imgHist[0], width=0.8, align='center')
 
-def reorderPoints(points):
-
-    points = points.reshape((4, 2))
-    newPoints = np.zeros((4, 1, 2), dtype=np.int32)
-    add = points.sum(1)
-
-    newPoints[0] = points[np.argmin(add)]
-    newPoints[3] = points[np.argmax(add)]
-    diff = np.diff(points, axis=1)
-    newPoints[1] = points[np.argmin(diff)]
-    newPoints[2] = points[np.argmax(diff)]
-
-    return newPoints
-
         
