@@ -25,8 +25,7 @@ def reorderPoints(points):
 
     return newPoints
 
-def extract_paper_region(ImagePath):
-    img_BGR = cv2.imread(ImagePath, cv2.IMREAD_COLOR)
+def extract_paper_region(img_RGB):
     img_RGB = cv2.cvtColor(img_BGR, cv2.COLOR_BGR2RGB)
     img_gray = cv2.cvtColor(img_BGR, cv2.COLOR_BGR2GRAY)
 
@@ -57,17 +56,16 @@ def extract_paper_region(ImagePath):
     pts1 = np.array(biggestContour,np.float32)
     pts2 = np.array([[0, 0], [x, 0], [0, y], [x, y]],np.float32)
 
-    print("1111")
-    print(pts1)
-    print("2222")
-    print(pts2)
     
     matrix = cv2.getPerspectiveTransform(pts1, pts2)
 
     WarpedGrayImage = cv2.warpPerspective(img_gray, matrix, (x, y))
     WarpedColoredImage = cv2.warpPerspective(img_RGB, matrix, (x, y))
 
-    show_images([img_RGB, WarpedColoredImage], ['Original', 'RGB'])
+    # show_images([img_RGB, WarpedColoredImage], ['Original', 'RGB'])
     return WarpedColoredImage, WarpedGrayImage
 
-extract_paper_region("grades-auto-filler/PaperExtraction/1.jpg")
+img_BGR = cv2.imread("grades-auto-filler/PaperExtraction/1.jpg", cv2.IMREAD_COLOR)
+colored, grayed = extract_paper_region(img_BGR)
+colored2, grayed2 = extract_paper_region(grayed)
+show_images([colored2, grayed2], ['Original', 'RGB'])
