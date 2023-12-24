@@ -2,6 +2,8 @@ from utils import *
 import cv2
 import numpy as np
 
+import numpy as np
+
 def reorderPoints(points):
     points = points.reshape((4, 2))
 
