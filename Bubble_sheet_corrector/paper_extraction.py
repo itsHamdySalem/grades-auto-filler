@@ -25,9 +25,9 @@ def reorderPoints(points):
 
     return newPoints
 
-def extract_paper_region(img_RGB):
-    img_RGB = cv2.cvtColor(img_RGB, cv2.COLOR_BGR2RGB)
-    img_gray = cv2.cvtColor(img_RGB, cv2.COLOR_BGR2GRAY)
+def extract_paper_region(img_BGR):
+    img_RGB = cv2.cvtColor(img_BGR, cv2.COLOR_BGR2RGB)
+    img_gray = cv2.cvtColor(img_BGR, cv2.COLOR_BGR2GRAY)
 
     cannyEdgedImage = cv2.Canny(img_gray, 100, 255)
 
@@ -64,4 +64,8 @@ def extract_paper_region(img_RGB):
 
     # show_images([img_RGB, WarpedColoredImage], ['Original', 'RGB'])
     return WarpedColoredImage, WarpedGrayImage
- 
+
+# img_BGR = cv2.imread("grades-auto-filler/PaperExtraction/1.jpg", cv2.IMREAD_COLOR)
+# colored, grayed = extract_paper_region(img_BGR)
+# colored2, grayed2 = extract_paper_region(grayed)
+# show_images([colored2, grayed2], ['Original', 'RGB'])
