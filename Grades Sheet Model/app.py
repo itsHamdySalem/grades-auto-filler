@@ -32,8 +32,13 @@ class GradesSheetApp:
             self.window, text='Upload your sheet', font=AppConfig.LARGE_FONT, background=AppConfig.LABEL_BG_COLOR)
         upload_label.pack(side="top", fill="both", pady=(50, 20))
 
+        ocr_var = tk.IntVar()
+        ocr_checkbox = tk.Checkbutton(
+            self.window, text='Run OCR', variable=ocr_var, onvalue=1, offvalue=0)
+        ocr_checkbox.pack(side="top", pady=10)
+
         upload_button = tk.Button(self.window, text='Upload image',
-                                  background=AppConfig.BUTTON_BG_COLOR, width=20, command=self.upload_file)
+                                  background=AppConfig.BUTTON_BG_COLOR, width=20, command=lambda: self.upload_file(ocr_var.get()))
         upload_button.pack(side="top", pady=20)
 
         self.results_label = tk.Label(
@@ -47,7 +52,7 @@ class GradesSheetApp:
         y_coordinate = int((screen_height - 480) / 2)
         self.window.geometry(f"724x480+{x_coordinate}+{y_coordinate}")
 
-    def upload_file(self):
+    def upload_file(self, isOCR):
         try:
             file_types = [('Jpg Files', '*.jpg')]
             selected_files = filedialog.askopenfilename(
@@ -58,19 +63,24 @@ class GradesSheetApp:
             self.results_label.config(text='Wait Results....')
 
             for file_path in selected_files:
-                excel_buffer = self.process_image(file_path)
+                excel_buffer = self.process_image(file_path, isOCR)
                 self.display_excel(excel_buffer)
 
+        except FileNotFoundError as error:
+            messagebox.showerror('Error', f"File not found: {error}")
+        except cv2.error as error:
+            messagebox.showerror('Error', f"OpenCV error: {error}")
         except Exception as error:
             messagebox.showerror('Error', f"An error occurred: {error}")
 
-    def process_image(self, image_path):
+    def process_image(self, image_path, isOCR):
         try:
             input_image = cv2.imread(image_path, cv2.IMREAD_COLOR)
             extracted_paper_image = extract_paper_region(
                 input_img=input_image, iterations=1)
             extracted_grid = extract_grid(extracted_paper_image)
-            extracted_data_from_grid = extract_data_from_grid(extracted_grid)
+            extracted_data_from_grid = extract_data_from_grid(
+                extracted_grid, isOCR=isOCR)
             excel_buffer = generate_excel_sheet(extracted_data_from_grid)
             return excel_buffer
 

@@ -2,12 +2,16 @@ import cv2
 import joblib
 import numpy as np
 from utils import *
+from PIL import Image
+import pytesseract
 
 svm_model_filename_digit = "Grades Sheet Model/svm_model_digits.joblib"
 svm_model_filename_symbol = "Grades Sheet Model/svm_model_symbols.joblib"
 
 loaded_svm_model_digit = joblib.load(svm_model_filename_digit)
 loaded_svm_model_symbol = joblib.load(svm_model_filename_symbol)
+
+pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
 
 def extract_hog_features(img, target_img_size=(32, 32)):
@@ -29,13 +33,16 @@ def extract_hog_features(img, target_img_size=(32, 32)):
     return h.flatten()
 
 
-def predict_digit(img):
-    hog_features = extract_hog_features(img)
-    if hog_features is None:
-        return ""
-    hog_features = hog_features.reshape(1, -1)
-    prediction = loaded_svm_model_digit.predict(hog_features)
-    return prediction[0]
+def predict_digit(img, isOCR=0):
+    if isOCR:
+        return pytesseract.image_to_string(img)
+    else:
+        hog_features = extract_hog_features(img)
+        if hog_features is None:
+            return ""
+        hog_features = hog_features.reshape(1, -1)
+        prediction = loaded_svm_model_digit.predict(hog_features)
+        return prediction[0]
 
 
 def predict_symbol(img):
@@ -51,33 +58,37 @@ def segment(img):
     contours, hierarchy = cv2.findContours(
         edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     contours = sorted(contours, key=lambda ctr: cv2.boundingRect(ctr))
-    white_img_large_contours = np.ones(img.shape)
+    white_img_large_contours = np.zeros(
+        img.shape, dtype=np.uint8)  # Fixed line
     dimensions_contours = []
     for contour in contours:
         (x, y, w, h) = cv2.boundingRect(contour)
-        if (w*h > 50):
+        if w * h > 50:
             dimensions_contours.append((x, y, w, h))
             cv2.rectangle(white_img_large_contours, (x, y),
                           (x+w, y+h), (0, 0, 255), 3)
     return dimensions_contours, img
 
 
-def getIdFromImage(img):
-    img = cv2.resize(img, (128, 64))
-    segmented_dimensions, filtered_img = segment(img)
-    cropped_digits = []
-    i = 0
-    for dimension in segmented_dimensions:
-        (x, y, w, h) = dimension
-        cropped_digits.append(filtered_img[y-1:y+h+1, x-1:x+w+1])
-        i += 1
-    predictions = []
-    for img in cropped_digits:
-        predictions.append(predict_digit(img))
-    predictedNumber = ""
-    for number in predictions:
-        predictedNumber += str(number)
-    return predictedNumber
+def getIdFromImage(img, isOCR=0):
+    if isOCR:
+        return pytesseract.image_to_string(img)
+    else:
+        img = cv2.resize(img, (128, 64))
+        segmented_dimensions, filtered_img = segment(img)
+        cropped_digits = []
+        i = 0
+        for dimension in segmented_dimensions:
+            (x, y, w, h) = dimension
+            cropped_digits.append(filtered_img[y-1:y+h+1, x-1:x+w+1])
+            i += 1
+        predictions = []
+        for img in cropped_digits:
+            predictions.append(predict_digit(img))
+        predictedNumber = ""
+        for number in predictions:
+            predictedNumber += str(number)
+        return predictedNumber
 
 
 def string_to_value(s):
@@ -97,7 +108,7 @@ def string_to_value(s):
         return None
 
 
-def extract_data_from_grid(grid=[]):
+def extract_data_from_grid(grid=[], isOCR=1):
     N = len(grid)
     M = len(grid[0])
     data = [["Code", "1", "2", "3"]]
@@ -106,9 +117,9 @@ def extract_data_from_grid(grid=[]):
         row_data = []
         for y in range(M):
             if y == 0:
-                row_data.append(getIdFromImage(grid[x][y]))
+                row_data.append(getIdFromImage(grid[x][y], isOCR=isOCR))
             elif y == 1:
-                row_data.append(predict_digit(grid[x][y]))
+                row_data.append(predict_digit(grid[x][y], isOCR=isOCR))
             else:
                 row_data.append(string_to_value(predict_symbol(grid[x][y])))
         data.append(row_data)
