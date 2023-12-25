@@ -2,8 +2,6 @@ from utils import *
 import cv2
 import numpy as np
 
-import numpy as np
-
 def reorderPoints(points):
     points = points.reshape((4, 2))
 
@@ -62,10 +60,4 @@ def extract_paper_region(img_BGR):
     WarpedGrayImage = cv2.warpPerspective(img_gray, matrix, (x, y))
     WarpedColoredImage = cv2.warpPerspective(img_RGB, matrix, (x, y))
 
-    # show_images([img_RGB, WarpedColoredImage], ['Original', 'RGB'])
     return WarpedColoredImage, WarpedGrayImage
-
-# img_BGR = cv2.imread("grades-auto-filler/PaperExtraction/1.jpg", cv2.IMREAD_COLOR)
-# colored, grayed = extract_paper_region(img_BGR)
-# colored2, grayed2 = extract_paper_region(grayed)
-# show_images([colored2, grayed2], ['Original', 'RGB'])
