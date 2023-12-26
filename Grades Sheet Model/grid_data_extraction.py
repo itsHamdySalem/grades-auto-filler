@@ -33,9 +33,11 @@ def extract_hog_features(img, target_img_size=(32, 32)):
     return h.flatten()
 
 
-def predict_digit(img, isOCR=0):
-    if isOCR:
-        return pytesseract.image_to_string(img)
+def predict_digit(img, isOCRDigit=0):
+    if isOCRDigit:
+        _, img = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY_INV)
+        return pytesseract.image_to_string(
+            img, config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789')
     else:
         hog_features = extract_hog_features(img)
         if hog_features is None:
@@ -108,7 +110,7 @@ def string_to_value(s):
         return None
 
 
-def extract_data_from_grid(grid=[], isOCR=1):
+def extract_data_from_grid(grid=[], isOCRID=1, isOCRDigit=0):
     N = len(grid)
     M = len(grid[0])
     data = [["Code", "1", "2", "3"]]
@@ -117,9 +119,9 @@ def extract_data_from_grid(grid=[], isOCR=1):
         row_data = []
         for y in range(M):
             if y == 0:
-                row_data.append(getIdFromImage(grid[x][y], isOCR=isOCR))
+                row_data.append(getIdFromImage(grid[x][y], isOCRID))
             elif y == 1:
-                row_data.append(predict_digit(grid[x][y], isOCR=isOCR))
+                row_data.append(predict_digit(grid[x][y], isOCRDigit))
             else:
                 row_data.append(string_to_value(predict_symbol(grid[x][y])))
         data.append(row_data)
