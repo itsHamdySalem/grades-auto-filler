@@ -42,6 +42,7 @@ def correct_paper(model_answers_path = "./samples/model_test2.jPG", student_answ
 
     #get the correct answers
     img_BGR = cv2.imread(model_answers_path, cv2.IMREAD_COLOR)
+    img_BGR = cv2.resize(img_BGR, (1200, 1600))
     colored, grayed = extract_paper_region(img_BGR)
     answers_section_gray = grayed[grayed.shape[0]//3 : (grayed.shape[0]-grayed.shape[0]//10), grayed.shape[1]//10 : (grayed.shape[1]-grayed.shape[1]//10)]
     answers_section_colored = colored[colored.shape[0]//3 : (colored.shape[0]-colored.shape[0]//10), colored.shape[1]//10 : (colored.shape[1]-colored.shape[1]//10)]
@@ -57,6 +58,8 @@ def correct_paper(model_answers_path = "./samples/model_test2.jPG", student_answ
     model_image = colored
 
     img_BGR = cv2.imread(student_answers_path, cv2.IMREAD_COLOR)
+    img_BGR = cv2.resize(img_BGR, (1200, 1600))
+    # show_images([img_BGR])
     colored, grayed = extract_paper_region(img_BGR)
     answers_section_gray = grayed[grayed.shape[0]//3 : (grayed.shape[0]-grayed.shape[0]//10), grayed.shape[1]//10 : (grayed.shape[1]-grayed.shape[1]//10)]
     answers_section_colored = colored[colored.shape[0]//3 : (colored.shape[0]-colored.shape[0]//10), colored.shape[1]//10 : (colored.shape[1]-colored.shape[1]//10)]
@@ -67,6 +70,7 @@ def correct_paper(model_answers_path = "./samples/model_test2.jPG", student_answ
 
     # show_images([answers_section_colored, answers_section_gray, id_section_colored, id_section_gray])
     id = extract_id(id_section_colored, id_section_gray)
+    print(id)
     if id is None:
         print("An Error happened while extracting the student ID!")
         sys.exit(0)

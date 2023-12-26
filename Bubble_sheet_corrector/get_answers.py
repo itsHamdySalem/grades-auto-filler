@@ -10,7 +10,7 @@ def get_answers_for_partition(colored, gray, model_answers = None):
 
     detected_circles = cv2.HoughCircles(edged,
                     cv2.HOUGH_GRADIENT, 1, 20, param1 = 70,
-                param2 = 20, minRadius = 25, maxRadius = 35)
+                param2 = 15, minRadius = 13, maxRadius = 20)
     if detected_circles is None:
         print("This partition is empty and has no questions.")
         return None

@@ -9,7 +9,7 @@ def extract_id(colored, gray):
     edged = cv2.Canny(edged, 20, 70)
     detected_circles = cv2.HoughCircles(edged,
                     cv2.HOUGH_GRADIENT, 1, 20, param1 = 70,
-                param2 = 20, minRadius = 25, maxRadius = 35)
+                param2 = 15, minRadius = 13, maxRadius = 20)
     if detected_circles is None:
         print("Error: Something went wrong during extracting the ID.")
         return None
