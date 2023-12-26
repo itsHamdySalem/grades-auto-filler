@@ -45,7 +45,7 @@ def get_answers_for_partition(colored, gray, model_answers = None):
         [a, b, r] = currentRow[dig]
         if (model_answers is not None):
             if model_answers[len(answers)-1] == dig: cv2.circle(colored, (a, b), r, (0, 255, 0), 2)
-            else: cv2.circle(colored, (a, b), r, (255, 0, 0), 2)
+            else: cv2.circle(colored, (a, b), r, (0, 0, 255), 2)
     return [colored, answers]
 
 def get_answers(colored, gray, model_answers = None): # returns the image after circling all the answers and also an array of answers
