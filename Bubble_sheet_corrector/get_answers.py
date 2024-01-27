@@ -1,8 +1,6 @@
 from utils import *
 import cv2
 import numpy as np
-from check_circle import *
-import sys
 
 def get_answers_for_partition(colored, gray, model_answers = None):
     edged = cv2.GaussianBlur(gray, (5, 5), 0)
@@ -33,19 +31,23 @@ def get_answers_for_partition(colored, gray, model_answers = None):
     for i in range(len(circles)//number_of_choices) :
         currentRow = circles[i*number_of_choices:(1+i)*number_of_choices]
         currentRow = sorted(currentRow, key=lambda t: t[0])
-        mx = 0
-        dig = 0 
+        mx = 500
+        dig = -1
         for j in range (len(currentRow)):
             [a, b, r] = currentRow[j]
             cnt = count_good_pixels(gray, a, b)
             if cnt > mx: 
                 mx = cnt
                 dig = j
-        answers.append(dig)
-        [a, b, r] = currentRow[dig]
-        if (model_answers is not None):
-            if model_answers[len(answers)-1] == dig: cv2.circle(colored, (a, b), r, (0, 255, 0), 2)
-            else: cv2.circle(colored, (a, b), r, (0, 0, 255), 2)
+        if dig == -1: 
+            if model_answers is None: return None
+            else: answers.append(-1)
+        else:
+            answers.append(dig)
+            [a, b, r] = currentRow[dig]
+            if (model_answers is not None):
+                if model_answers[len(answers)-1] == dig: cv2.circle(colored, (a, b), r, (0, 255, 0), 2)
+                else: cv2.circle(colored, (a, b), r, (0, 0, 255), 2)
     return [colored, answers]
 
 def get_answers(colored, gray, model_answers = None): # returns the image after circling all the answers and also an array of answers

@@ -50,16 +50,15 @@ def correct_paper(model_answers_path = "./samples/model_test2.jPG", student_answ
     res = get_answers(answers_section_colored, answers_section_gray)
     if res is None:
         print("An Error happened while extracting the correct answers from the model answer!")
-        sys.exit(0)
+        sys.exit(1)
+    print("answers have been extracted successfully from the model answer..")
 
     [colored[colored.shape[0]//3 : (colored.shape[0]-colored.shape[0]//10), colored.shape[1]//10 : (colored.shape[1]-colored.shape[1]//10)]
     , model_answers_partitioned] = res
 
-    model_image = colored
-
     img_BGR = cv2.imread(student_answers_path, cv2.IMREAD_COLOR)
     img_BGR = cv2.resize(img_BGR, (1200, 1600))
-    # show_images([img_BGR])
+
     colored, grayed = extract_paper_region(img_BGR)
     answers_section_gray = grayed[grayed.shape[0]//3 : (grayed.shape[0]-grayed.shape[0]//10), grayed.shape[1]//10 : (grayed.shape[1]-grayed.shape[1]//10)]
     answers_section_colored = colored[colored.shape[0]//3 : (colored.shape[0]-colored.shape[0]//10), colored.shape[1]//10 : (colored.shape[1]-colored.shape[1]//10)]
@@ -68,17 +67,17 @@ def correct_paper(model_answers_path = "./samples/model_test2.jPG", student_answ
     id_section_colored = colored[0 : grayed.shape[0]//3, grayed.shape[1]//10 : (grayed.shape[1]-5*grayed.shape[1]//12)]
 
 
-    # show_images([answers_section_colored, answers_section_gray, id_section_colored, id_section_gray])
     id = extract_id(id_section_colored, id_section_gray)
-    print(id)
+
     if id is None:
         print("An Error happened while extracting the student ID!")
-        sys.exit(0)
+        sys.exit(1)
+    print("Current ID = " + id + " is being processed..")
 
     res = get_answers(answers_section_colored, answers_section_gray, model_answers_partitioned)
     if res is None:
         print("An Error happened while extracting the answers of the student!")
-        sys.exit(0)
+        sys.exit(1)
 
     [colored[colored.shape[0]//3 : (colored.shape[0]-colored.shape[0]//10), colored.shape[1]//10 : (colored.shape[1]-colored.shape[1]//10)]
     , studnent_answers_partitioned] = res
@@ -94,8 +93,7 @@ def correct_paper(model_answers_path = "./samples/model_test2.jPG", student_answ
 
     student_image = colored
 
-    # print(id, correct, total)
-    # show_images([student_image, model_image], ['student', 'model'])
+    print("Correcting of the paper is done successfully!")
     return (id, correct, total, student_image, answers)
 
 def upload_model_answers():
@@ -128,8 +126,9 @@ def compare_answers():
         cv2.imwrite(image_path, student_image)
         
         generate_excel_sheet_answers(answers, "results/"+str(id)+"/answers.xlsx")
+        print("The excel sheet for the student is generated successfully!")
 
-
+    print("The excel sheet for all the students is generated successfully!!")
     generate_excel_sheet(students_data)
 
 

@@ -39,4 +39,13 @@ def showHist(img):
     
     bar(imgHist[1].astype(np.uint8), imgHist[0], width=0.8, align='center')
 
-        
+def count_good_pixels(image, a, b, th = 180):
+    cnt = 0
+    Ly = max(0, a-25)
+    Ry = min(image.shape[1], a+26)
+    Lx = max(0, b-25)
+    Rx = min(image.shape[0], b+26)
+    for y in range(Ly, Ry):
+        for x in range(Lx, Rx):
+            if image[x, y] < th: cnt+=1
+    return cnt

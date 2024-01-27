@@ -1,8 +1,6 @@
 from utils import *
 import cv2
 import numpy as np
-from check_circle import *
-import sys
 
 def extract_id(colored, gray):
     edged = cv2.GaussianBlur(gray, (5, 5), 0)
@@ -33,15 +31,16 @@ def extract_id(colored, gray):
     for i in range(len(circles)//10) :
         currentRow = circles[i*10:i*10+10]
         currentRow = sorted(currentRow, key=lambda t: t[0])
-        mx = 0
-        dig = 0
+        mx = 500
+        dig = -1
         for j in range (len(currentRow)):
             [a, b, r] = currentRow[j]
             cnt = count_good_pixels(gray, a, b)
             if cnt > mx: 
                 mx = cnt
                 dig = j
-        [a, b, r] = currentRow[dig]
+        if dig == -1 : return None
+
         id+=str(dig)
                 
     return id
